@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TapTap 游戏库</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f7f8fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+        .status-bar {
+            height: 44px;
+            background-color: #f7f8fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 14px;
+        }
+        .tab-active {
+            color: #00c3b6;
+            border-bottom: 2px solid #00c3b6;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #eee;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+        .nav-item.active {
+            color: #00c3b6;
+        }
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="time font-semibold">16:13</div>
+        <div class="icons flex items-center space-x-2">
+            <span>5G</span>
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-three-quarters"></i>
+        </div>
+    </div>
+
+    <!-- 用户信息 -->
+    <div class="user-info p-4 flex items-center justify-between">
+        <div class="flex items-center">
+            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop" class="w-14 h-14 rounded-full object-cover" alt="用户头像">
+            <div class="ml-3">
+                <div class="text-lg font-semibold">远夏</div>
+                <div class="text-sm text-green-500 bg-green-100 px-2 py-0.5 rounded-full inline-flex items-center">
+                    <i class="fas fa-gamepad mr-1 text-xs"></i>
+                    新游先锋
+                </div>
+            </div>
+        </div>
+        <div class="flex space-x-4">
+            <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                <i class="fas fa-plus text-gray-600"></i>
+            </button>
+            <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                <i class="fas fa-bars text-gray-600"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 游戏统计 -->
+    <div class="game-stats flex justify-around p-4">
+        <div class="text-center">
+            <div class="text-2xl font-bold">82</div>
+            <div class="text-sm text-gray-500">玩过的游戏</div>
+        </div>
+        <div class="text-center">
+            <div class="text-2xl font-bold">14</div>
+            <div class="text-sm text-gray-500">购买的游戏</div>
+        </div>
+        <div class="text-center">
+            <a href="pending_reviews.html" class="block">
+                <div class="text-2xl font-bold text-teal-500">8</div>
+                <div class="text-sm text-teal-500 flex items-center justify-center">
+                    待评价
+                    <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                </div>
+            </a>
+        </div>
+        <div class="text-center">
+            <div class="text-2xl font-bold">464</div>
+            <div class="text-sm text-gray-500">游戏时长</div>
+        </div>
+        <div class="text-center">
+            <div class="text-2xl font-bold">5</div>
+            <div class="text-sm text-gray-500">游戏成就</div>
+        </div>
+    </div>
+
+    <!-- 活动和商城 -->
+    <div class="flex justify-between p-4">
+        <div class="w-1/2 pr-2">
+            <div class="bg-white rounded-xl p-4 flex items-center">
+                <i class="fas fa-gift text-gray-500 text-xl mr-3"></i>
+                <div class="text-lg">活动</div>
+                <i class="fas fa-chevron-right ml-auto text-gray-400"></i>
+            </div>
+        </div>
+        <div class="w-1/2 pl-2">
+            <div class="bg-white rounded-xl p-4 flex items-center">
+                <i class="fas fa-shopping-bag text-gray-500 text-xl mr-3"></i>
+                <div class="text-lg">商城</div>
+                <span class="text-xs ml-1 text-gray-400">Beta</span>
+                <i class="fas fa-chevron-right ml-auto text-gray-400"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 游戏分类标签 -->
+    <div class="game-tabs p-4 pt-0 flex border-b border-gray-200">
+        <div class="tab-item py-3 px-5 tab-active font-medium">本机</div>
+        <div class="tab-item py-3 px-5 text-gray-500 font-medium">云玩</div>
+        <div class="tab-item py-3 px-5 text-gray-500 font-medium">预约</div>
+        <div class="ml-auto flex items-center text-gray-500">
+            默认排序
+            <i class="fas fa-chevron-down ml-1 text-xs"></i>
+        </div>
+    </div>
+
+    <!-- 游戏列表 -->
+    <div class="game-list p-4 pb-20">
+        <!-- 游戏项 1 - 带待评价标签 -->
+        <div class="game-item bg-white rounded-xl p-4 mb-4">
+            <div class="flex">
+                <img src="https://images.unsplash.com/photo-1580234811497-9df7fd2f357e?w=150&h=150&fit=crop" class="w-16 h-16 rounded-lg object-cover" alt="游戏图标">
+                <div class="ml-3 flex-1">
+                    <div class="flex justify-between">
+                        <div class="font-semibold">向僵尸开炮</div>
+                        <div class="text-teal-500 text-sm font-medium bg-teal-50 px-2 py-0.5 rounded-full">
+                            待评价
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-500 mt-1">20小时前浏览</div>
+                </div>
+            </div>
+            <div class="flex justify-between mt-4">
+                <div class="flex items-center text-gray-500">
+                    <i class="fas fa-gift text-gray-400 mr-1"></i>
+                    签到有礼
+                </div>
+                <div class="text-gray-500 text-sm">
+                    距离签到结束还剩27天
+                </div>
+            </div>
+            <div class="flex justify-between mt-4">
+                <button class="text-gray-500">更多</button>
+                <div class="flex space-x-2">
+                    <button class="px-6 py-2 bg-teal-50 text-teal-500 rounded-full">论坛</button>
+                    <button class="px-6 py-2 bg-teal-500 text-white rounded-full">打开</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏项 2 - 带待评价标签 -->
+        <div class="game-item bg-white rounded-xl p-4 mb-4">
+            <div class="flex">
+                <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=150&h=150&fit=crop" class="w-16 h-16 rounded-lg object-cover" alt="游戏图标">
+                <div class="ml-3 flex-1">
+                    <div class="flex justify-between">
+                        <div class="font-semibold">黎明前20分钟</div>
+                        <div class="text-teal-500 text-sm font-medium bg-teal-50 px-2 py-0.5 rounded-full">
+                            待评价
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-500 mt-1 flex items-center">
+                        <i class="fas fa-clock mr-1"></i>
+                        游戏时长 11 分钟
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between mt-4">
+                <div class="flex items-center text-gray-500">
+                    各流派攻略
+                    <i class="fas fa-chevron-right ml-1 text-xs"></i>
+                </div>
+            </div>
+            <div class="flex justify-between mt-4">
+                <button class="text-gray-500">更多</button>
+                <div class="flex space-x-2">
+                    <button class="px-6 py-2 bg-teal-50 text-teal-500 rounded-full">论坛</button>
+                    <button class="px-6 py-2 bg-teal-500 text-white rounded-full">启动</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏项 3 -->
+        <div class="game-item bg-white rounded-xl p-4">
+            <div class="flex">
+                <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150&h=150&fit=crop" class="w-16 h-16 rounded-lg object-cover" alt="游戏图标">
+                <div class="ml-3 flex-1">
+                    <div class="font-semibold">小镇黑洞</div>
+                    <div class="text-sm text-gray-500 mt-1">20天前浏览</div>
+                </div>
+            </div>
+            <div class="flex justify-between mt-4">
+                <button class="text-gray-500">更多</button>
+                <div class="flex space-x-2">
+                    <button class="px-6 py-2 bg-teal-50 text-teal-500 rounded-full">论坛</button>
+                    <button class="px-6 py-2 bg-teal-500 text-white rounded-full">
+                        启动
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <i class="fas fa-search nav-icon"></i>
+            <span>找游戏</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-chart-bar nav-icon"></i>
+            <span>排行榜</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-users nav-icon"></i>
+            <span>社区</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-bell nav-icon"></i>
+            <span>消息</span>
+            <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">6</span>
+        </div>
+        <div class="nav-item active">
+            <i class="fas fa-gamepad nav-icon"></i>
+            <span>我的游戏</span>
+        </div>
+    </div>
+</body>
+</html> 

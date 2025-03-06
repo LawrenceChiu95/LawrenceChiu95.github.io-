@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TapTap 评价列表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f7f8fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .status-bar {
+            height: 44px;
+            background-color: #f7f8fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 14px;
+        }
+        .tab-active {
+            color: #00c3b6;
+            border-bottom: 2px solid #00c3b6;
+        }
+        .rating-stars {
+            color: #ffcc00;
+        }
+        .rating-stars.gray {
+            color: #ddd;
+        }
+        .review-item {
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .review-tag {
+            background-color: #f5f5f5;
+            color: #666;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 12px;
+            margin-right: 6px;
+        }
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            bottom: 100%;
+            right: 0;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+        .tooltip.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 15px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.75) transparent transparent transparent;
+        }
+        .fab-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: linear-gradient(135deg, #00c3b6, #7367f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 5;
+        }
+        .pen-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .avatar-1 {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+        }
+        .avatar-2 {
+            background: linear-gradient(135deg, #6B66FF, #4ECDC4);
+        }
+        .avatar-3 {
+            background: linear-gradient(135deg, #FF9966, #FF5E62);
+        }
+        .game-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #8A2387, #E94057, #F27121);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            overflow: hidden;
+            position: relative;
+        }
+        .game-logo-text {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 10px;
+            padding: 2px 0;
+            text-align: center;
+        }
+        .taptap-logo {
+            display: flex;
+            align-items: center;
+        }
+        .taptap-logo-text {
+            color: #00c3b6;
+            font-weight: bold;
+            font-size: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .score-number {
+            color: #00c3b6;
+            font-size: 48px;
+            font-weight: bold;
+            line-height: 1;
+            margin-right: 24px;
+        }
+        .star-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .star-icons {
+            display: flex;
+            width: 80px;
+            margin-right: 8px;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background-color: #eee;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #00c3b6;
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="time font-semibold">16:52</div>
+        <div class="icons flex items-center space-x-2">
+            <span>8.20 KB/s</span>
+            <span>5G</span>
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-three-quarters"></i>
+        </div>
+    </div>
+
+    <!-- 顶部导航 -->
+    <div class="top-nav bg-white p-4 flex items-center justify-between border-b border-gray-200">
+        <a href="#" class="text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-left"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </a>
+        
+        <!-- 顶部标签导航 -->
+        <div class="flex space-x-6">
+            <a href="#" class="text-gray-500 text-base">统计</a>
+            <a href="#" class="text-gray-500 text-base">详情</a>
+            <a href="#" class="tab-active text-base font-medium px-1 pb-1">评价</a>
+            <a href="#" class="text-gray-500 text-base">攻略</a>
+            <a href="#" class="text-gray-500 text-base">论坛</a>
+        </div>
+        
+        <div class="flex space-x-4">
+            <a href="#" class="text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </a>
+            <a href="#" class="text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- 游戏信息 -->
+    <div class="game-info bg-white p-4 flex items-center border-b border-gray-200">
+        <div class="game-logo mr-3">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+            </svg>
+            <div class="game-logo-text">燕云十六声</div>
+        </div>
+        <div>
+            <h1 class="text-lg font-bold">燕云十六声</h1>
+            <div class="flex items-center text-gray-500 text-sm">
+                <span class="mr-2">16周岁+</span>
+                <span>•</span>
+                <span class="ml-2">官方入驻</span>
+            </div>
+        </div>
+        <div class="ml-auto">
+            <button class="bg-teal-500 text-white px-6 py-2 rounded-full text-base font-medium">
+                下载
+            </button>
+        </div>
+    </div>
+
+    <!-- 评价标题和筛选 -->
+    <div class="review-header bg-white p-4 border-b border-gray-200">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold">全部评价</h2>
+            <div class="flex space-x-2">
+                <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">综合</button>
+                <button class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">最新</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TapTap评分 -->
+    <div class="rating-section bg-white p-4 border-b border-gray-200">
+        <div class="flex items-center mb-2">
+            <span class="taptap-logo-text">TapTap</span>
+            <a href="#" class="flex items-center ml-auto text-gray-500 text-sm">
+                <span>近期趋势</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </a>
+        </div>
+        
+        <div class="flex items-start mb-4">
+            <div class="score-number">7.0</div>
+            <div class="flex-1">
+                <!-- 5星 -->
+                <div class="star-row">
+                    <div class="star-icons">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 40%"></div>
+                    </div>
+                </div>
+                <!-- 4星 -->
+                <div class="star-row">
+                    <div class="star-icons">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 20%"></div>
+                    </div>
+                </div>
+                <!-- 3星 -->
+                <div class="star-row">
+                    <div class="star-icons">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 15%"></div>
+                    </div>
+                </div>
+                <!-- 2星 -->
+                <div class="star-row">
+                    <div class="star-icons">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 15%"></div>
+                    </div>
+                </div>
+                <!-- 1星 -->
+                <div class="star-row">
+                    <div class="star-icons">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 10%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-sm text-gray-500">1.9万个评价</div>
+    </div>
+
+    <!-- 评价分类标签 -->
+    <div class="review-tags bg-white p-4 border-b border-gray-200 flex items-center overflow-x-auto">
+        <div class="flex items-center mr-4">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2">
+                <path d="M12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4Z" fill="#00C3B6"/>
+                <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" fill="white"/>
+            </svg>
+            <span class="text-gray-700">嘴替发言</span>
+            <span class="ml-1 text-gray-500">31</span>
+        </div>
+        
+        <div class="flex items-center mr-4">
+            <img src="https://img.tapimg.com/market/images/avatar.png" class="w-6 h-6 rounded-full mr-2" alt="用户头像">
+            <span class="text-gray-700">你的关注</span>
+        </div>
+        
+        <div class="flex items-center mr-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-image text-gray-500 mr-2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <span class="text-gray-700">带图</span>
+            <span class="ml-1 text-gray-500">2303</span>
+        </div>
+    </div>
+
+    <!-- 评价筛选标签 -->
+    <div class="filter-tags bg-white p-4 border-b border-gray-200 flex items-center overflow-x-auto">
+        <div class="mr-4 text-gray-700">
+            <span>长评</span>
+            <span class="ml-1 text-gray-500">765</span>
+        </div>
+        
+        <div class="mr-4 text-gray-700">
+            <span>游戏时长 1h+</span>
+        </div>
+        
+        <div class="mr-4 text-gray-700">
+            <span>好评</span>
+        </div>
+        
+        <div class="mr-4 text-gray-700">
+            <span>中评</span>
+        </div>
+        
+        <div class="mr-4 text-gray-700">
+            <span>差评</span>
+        </div>
+        
+        <div class="ml-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+    </div>
+
+    <!-- 嘟嘟发言专业评测 -->
+    <div class="professional-review bg-white p-4 border-b border-gray-200">
+        <div class="flex items-center mb-2">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2">
+                <path d="M12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4Z" fill="#00C3B6"/>
+                <path d="M12 17C14.7614 17 17 14.7614 17 12C17 9.23858 14.7614 7 12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17Z" fill="white"/>
+            </svg>
+            <span class="ml-2 text-base font-medium">嘴替发言</span>
+            <span class="ml-2 text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded">因高专业度入选</span>
+        </div>
+    </div>
+
+    <!-- 用户评价列表 -->
+    <div class="review-list">
+        <!-- 评价1 -->
+        <div class="review-item bg-white p-4">
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center">
+                    <div class="user-avatar avatar-1 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <div>
+                        <div class="font-medium">西瓜发电机</div>
+                        <div class="rating-stars flex mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather feather-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <span class="ml-2 text-gray-500 text-sm">游戏时长 14.3小时</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-teal-500 text-sm mr-2">你的关注</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="flex mb-2">
+                    <span class="review-tag">推荐: 可玩性</span>
+                    <span class="review-tag">画面音乐</span>
+                </div>
+                
+                <p class="text-gray-800">
+                    《燕云十六声》上线之前属实是debuff叠满了，宣发阶段疯狂蹭3A热度，三测被质疑半成品预告骗，黄毛的梗玩了半年，又在上线前夕宣布跳票，着实让人没什么好感。但真正游玩到公测版本，着实给了我不少惊喜，出乎意料地越玩...
+                </p>
+                <a href="#" class="text-teal-500">展开</a>
+            </div>
+            
+            <div class="flex space-x-2 mb-2">
+                <img src="https://picsum.photos/id/237/300/200" class="w-32 h-24 object-cover rounded" alt="游戏截图1">
+                <img src="https://picsum.photos/id/238/300/200" class="w-32 h-24 object-cover rounded" alt="游戏截图2">
+                <img src="https://picsum.photos/id/239/300/200" class="w-32 h-24 object-cover rounded" alt="游戏截图3">
+            </div>
+            
+            <div class="text-gray-500 text-xs flex items-center justify-between">
+                <span>修改于 2025/01/12</span>
+                <span>来自 Vivo X100 Pro</span>
+            </div>
+        </div>
+        
+        <!-- 评价2 -->
+        <div class="review-item bg-white p-4">
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center">
+                    <div class="user-avatar avatar-2 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <div>
+                        <div class="font-medium">游戏爱好者</div>
+                        <div class="flex mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <span class="ml-2 text-gray-500 text-sm">游戏时长 32.5小时</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="flex mb-2">
+                    <span class="review-tag">推荐: 剧情</span>
+                    <span class="review-tag">音乐</span>
+                </div>
+                
+                <p class="text-gray-800">
+                    这款游戏的剧情设计非常出色，音乐也很有中国特色。游戏玩法上手简单但是有一定深度，适合各类玩家。画面表现也很惊艳，特别是光影效果做得非常好。推荐给喜欢中国风游戏的玩家。
+                </p>
+            </div>
+            
+            <div class="flex space-x-2 mb-2">
+                <img src="https://picsum.photos/id/240/300/200" class="w-32 h-24 object-cover rounded" alt="游戏截图">
+            </div>
+            
+            <div class="text-gray-500 text-xs flex items-center justify-between">
+                <span>发布于 2025/01/10</span>
+                <span>来自 iPhone 15 Pro</span>
+            </div>
+        </div>
+        
+        <!-- 评价3 -->
+        <div class="review-item bg-white p-4">
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex items-center">
+                    <div class="user-avatar avatar-3 mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                    <div>
+                        <div class="font-medium">云玩家</div>
+                        <div class="flex mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ffcc00" stroke="#ffcc00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#ddd" stroke="#ddd" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                            <span class="ml-2 text-gray-500 text-sm">游戏时长 8.7小时</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <p class="text-gray-800">
+                    游戏整体还不错，但是优化有点问题，在我的手机上经常掉帧。希望后续更新能够改善这个问题。剧情方面中规中矩，没有特别惊艳的地方。
+                </p>
+            </div>
+            
+            <div class="text-gray-500 text-xs flex items-center justify-between">
+                <span>发布于 2025/01/08</span>
+                <span>来自 OPPO Find X6</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 发布评价按钮 -->
+    <div class="fab-button" id="reviewButton">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+        
+        <!-- 气泡提示 -->
+        <div class="tooltip" id="reviewTooltip">
+            你已玩过 14.3 小时，留下你的评价帮助其他玩家
+        </div>
+    </div>
+
+    <script>
+        // 可以添加交互逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            // 示例：点击展开按钮
+            const expandButtons = document.querySelectorAll('a.text-teal-500');
+            expandButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const reviewText = this.previousElementSibling;
+                    reviewText.classList.toggle('line-clamp-3');
+                    this.textContent = reviewText.classList.contains('line-clamp-3') ? '展开' : '收起';
+                });
+            });
+            
+            // 气泡提示逻辑
+            const tooltip = document.getElementById('reviewTooltip');
+            const reviewButton = document.getElementById('reviewButton');
+            
+            // 自动触发：页面加载后1秒显示，3秒后消失
+            setTimeout(() => {
+                tooltip.classList.add('show');
+                
+                setTimeout(() => {
+                    tooltip.classList.remove('show');
+                }, 3000);
+            }, 1000);
+            
+            // 手动触发：点击按钮切换显示/隐藏
+            reviewButton.addEventListener('click', function() {
+                tooltip.classList.toggle('show');
+            });
+            
+            // 为所有"去评价"按钮添加点击事件
+            const rateButtons = document.querySelectorAll('button:contains("去评价")');
+            rateButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    tooltip.classList.toggle('show');
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

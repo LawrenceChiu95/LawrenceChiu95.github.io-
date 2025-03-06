@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TapTap 待评价列表</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f7f8fa;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+        .status-bar {
+            height: 44px;
+            background-color: #f7f8fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 14px;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #eee;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: #999;
+        }
+        .nav-item.active {
+            color: #00c3b6;
+        }
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        .progress-bar {
+            height: 4px;
+            border-radius: 2px;
+            background-color: #eee;
+            overflow: hidden;
+        }
+        .progress-fill-green {
+            height: 100%;
+            background-color: #5cb85c;
+        }
+        .progress-fill-orange {
+            height: 100%;
+            background-color: #ff9800;
+        }
+        .activity-banner {
+            background-color: white;
+            border: 1px solid #ffcc00;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 0 16px 16px 16px;
+        }
+        .filter-tabs {
+            display: flex;
+            background-color: white;
+            padding: 10px 16px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .filter-tab {
+            padding: 6px 12px;
+            font-size: 13px;
+            color: #666;
+            margin-right: 12px;
+            border-radius: 4px;
+        }
+        .filter-tab.active {
+            background-color: #00c3b6;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态栏 -->
+    <div class="status-bar">
+        <div class="time font-semibold">16:13</div>
+        <div class="icons flex items-center space-x-2">
+            <span>5G</span>
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <i class="fas fa-battery-three-quarters"></i>
+        </div>
+    </div>
+
+    <!-- 顶部导航 -->
+    <div class="top-nav bg-white p-4 flex items-center border-b border-gray-200">
+        <a href="game_library.html" class="text-gray-600">
+            <i class="fas fa-chevron-left text-xl"></i>
+        </a>
+        <h1 class="text-xl font-semibold ml-4">待评价游戏</h1>
+    </div>
+
+    <!-- 活动banner -->
+    <div class="activity-banner">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-star text-yellow-400 mr-2"></i>
+                <span class="font-medium">待评价游戏 (8)</span>
+            </div>
+            <div class="text-teal-500 text-xs">
+                评价可获得额外奖励
+            </div>
+        </div>
+        <p class="text-gray-600 text-xs mt-2">
+            分享你的游戏体验，帮助其他玩家了解游戏。评价后可获得TapTap经验值奖励！
+        </p>
+        <div class="mt-2 text-xs text-gray-400 italic text-center">
+            [此处为活动banner位置，可替换为实际活动内容]
+        </div>
+    </div>
+
+    <!-- 筛选标签 -->
+    <div class="filter-tabs">
+        <div class="filter-tab active">最近游玩</div>
+        <div class="filter-tab">玩得最久</div>
+        <div class="filter-tab">花钱买的</div>
+    </div>
+
+    <!-- 游戏列表 -->
+    <div class="game-list p-4 pb-20">
+        <!-- 游戏项 1 -->
+        <div class="game-item bg-white rounded-xl p-4 mb-4">
+            <div class="flex items-center">
+                <img src="https://images.unsplash.com/photo-1580234811497-9df7fd2f357e?w=150&h=150&fit=crop" class="w-16 h-16 rounded-lg object-cover" alt="游戏图标">
+                <div class="ml-3 flex-1">
+                    <div class="font-semibold">向僵尸开炮</div>
+                    <div class="text-xs text-gray-500 mt-1">游戏时长: 3.5小时</div>
+                    <div class="text-xs text-gray-500 mt-1">最近游玩: 2天前</div>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill-green" style="width: 40%"></div>
+                    </div>
+                </div>
+                <div class="ml-3">
+                    <a href="write_review.html?game=向僵尸开炮" class="block bg-teal-500 text-white text-sm px-4 py-2 rounded-full">
+                        写评价
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏项 2 -->
+        <div class="game-item bg-white rounded-xl p-4 mb-4">
+            <div class="flex items-center">
+                <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=150&h=150&fit=crop" class="w-16 h-16 rounded-lg object-cover" alt="游戏图标">
+                <div class="ml-3 flex-1">
+                    <div class="font-semibold">黎明前20分钟</div>
+                    <div class="text-xs text-gray-500 mt-1">游戏时长: 11分钟</div>
+                    <div class="text-xs text-gray-500 mt-1">最近游玩: 今天</div>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill-green" style="width: 15%"></div>
+                    </div>
+                </div>
+                <div class="ml-3">
+                    <a href="write_review.html?game=黎明前20分钟" class="block bg-teal-500 text-white text-sm px-4 py-2 rounded-full">
+                        写评价
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏项 3 -->
+        <div class="game-item bg-white rounded-xl p-4 mb-4">
+            <div class="flex items-center">
+                <img src="https://images.unsplash.com/photo-1614294149010-950b698f72c0?w=150&h=150&fit=crop" class="w-16 h-16 rounded-lg object-cover" alt="游戏图标">
+                <div class="ml-3 flex-1">
+                    <div class="font-semibold">燕云十六声</div>
+                    <div class="text-xs text-gray-500 mt-1">游戏时长: 14.3小时</div>
+                    <div class="text-xs text-gray-500 mt-1">最近游玩: 3天前</div>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill-orange" style="width: 65%"></div>
+                    </div>
+                </div>
+                <div class="ml-3">
+                    <a href="write_review.html?game=燕云十六声" class="block bg-teal-500 text-white text-sm px-4 py-2 rounded-full">
+                        写评价
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏项 4 -->
+        <div class="game-item bg-white rounded-xl p-4 mb-4">
+            <div class="flex items-center">
+                <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150&h=150&fit=crop" class="w-16 h-16 rounded-lg object-cover" alt="游戏图标">
+                <div class="ml-3 flex-1">
+                    <div class="font-semibold">小镇黑洞</div>
+                    <div class="text-xs text-gray-500 mt-1">游戏时长: 5.2小时</div>
+                    <div class="text-xs text-gray-500 mt-1">最近游玩: 1周前</div>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill-green" style="width: 45%"></div>
+                    </div>
+                </div>
+                <div class="ml-3">
+                    <a href="write_review.html?game=小镇黑洞" class="block bg-teal-500 text-white text-sm px-4 py-2 rounded-full">
+                        写评价
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏项 5 -->
+        <div class="game-item bg-white rounded-xl p-4 mb-4">
+            <div class="flex items-center">
+                <img src="https://images.unsplash.com/photo-1551103782-8ab07afd45c1?w=150&h=150&fit=crop" class="w-16 h-16 rounded-lg object-cover" alt="游戏图标">
+                <div class="ml-3 flex-1">
+                    <div class="font-semibold">心动小镇</div>
+                    <div class="text-xs text-gray-500 mt-1">游戏时长: 8.7小时</div>
+                    <div class="text-xs text-gray-500 mt-1">最近游玩: 5天前</div>
+                    <div class="progress-bar mt-2">
+                        <div class="progress-fill-orange" style="width: 55%"></div>
+                    </div>
+                </div>
+                <div class="ml-3">
+                    <a href="write_review.html?game=心动小镇" class="block bg-teal-500 text-white text-sm px-4 py-2 rounded-full">
+                        写评价
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 更多游戏... -->
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item">
+            <i class="fas fa-search nav-icon"></i>
+            <span>找游戏</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-chart-bar nav-icon"></i>
+            <span>排行榜</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-users nav-icon"></i>
+            <span>社区</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-bell nav-icon"></i>
+            <span>消息</span>
+        </div>
+        <div class="nav-item active">
+            <i class="fas fa-gamepad nav-icon"></i>
+            <span>我的游戏</span>
+        </div>
+    </div>
+</body>
+</html> 
