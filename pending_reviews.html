@@ -133,12 +133,24 @@
         <div class="filter-tab active">最近游玩</div>
         <div class="filter-tab">玩得最久</div>
         <div class="filter-tab">花钱买的</div>
+        <div class="filter-tab">猜你玩过</div>
     </div>
 
     <!-- 游戏列表 -->
     <div class="game-list p-4 pb-20">
         <!-- 游戏项 1 -->
-        <div class="game-item bg-white rounded-xl p-4 mb-4">
+        <div class="game-item bg-white rounded-xl p-4 mb-4 relative">
+            <div class="absolute top-3 right-3">
+                <button class="more-options-btn text-gray-400 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="more-options-menu hidden absolute right-0 mt-1 w-32 bg-white rounded-lg shadow-lg z-10 py-1 border border-gray-200">
+                    <div class="option px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer flex items-center">
+                        <i class="fas fa-eye-slash mr-2 text-gray-500"></i>
+                        不再提醒
+                    </div>
+                </div>
+            </div>
             <div class="flex items-center">
                 <img src="https://images.unsplash.com/photo-1580234811497-9df7fd2f357e?w=150&h=150&fit=crop" class="w-16 h-16 rounded-lg object-cover" alt="游戏图标">
                 <div class="ml-3 flex-1">
@@ -263,5 +275,70 @@
             <span>我的游戏</span>
         </div>
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 为所有更多选项按钮添加点击事件
+        const moreOptionsBtns = document.querySelectorAll('.more-options-btn');
+        
+        moreOptionsBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation(); // 阻止事件冒泡
+                
+                // 关闭所有其他打开的菜单
+                document.querySelectorAll('.more-options-menu').forEach(menu => {
+                    if(menu !== this.nextElementSibling) {
+                        menu.classList.add('hidden');
+                    }
+                });
+                
+                // 切换当前菜单的显示状态
+                const menu = this.nextElementSibling;
+                menu.classList.toggle('hidden');
+            });
+        });
+        
+        // 为不再提醒选项添加点击事件
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                // 获取游戏项元素
+                const gameItem = this.closest('.game-item');
+                
+                // 添加淡出动画
+                gameItem.style.transition = 'opacity 0.3s, transform 0.3s';
+                gameItem.style.opacity = '0';
+                gameItem.style.transform = 'translateX(10px)';
+                
+                // 动画完成后移除元素
+                setTimeout(() => {
+                    gameItem.style.display = 'none';
+                    
+                    // 更新待评价游戏数量（在活动banner中）
+                    const countElem = document.querySelector('.activity-banner .font-medium');
+                    if(countElem) {
+                        let count = parseInt(countElem.textContent.match(/\d+/)[0]) - 1;
+                        countElem.textContent = `待评价游戏 (${count})`;
+                    }
+                    
+                    // 如果删除了所有游戏，显示一个空状态提示
+                    const remainingGames = document.querySelectorAll('.game-item[style="display: none;"]');
+                    if(remainingGames.length === document.querySelectorAll('.game-item').length) {
+                        const emptyState = document.createElement('div');
+                        emptyState.className = 'text-center py-8 text-gray-500';
+                        emptyState.innerHTML = '<i class="fas fa-check-circle text-3xl mb-3 text-green-500"></i><p>全部游戏已评价完成！</p><p class="text-sm mt-2">去探索更多新游戏吧</p>';
+                        document.querySelector('.game-list').appendChild(emptyState);
+                    }
+                }, 300);
+            });
+        });
+        
+        // 点击页面其他区域时关闭菜单
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.more-options-menu').forEach(menu => {
+                menu.classList.add('hidden');
+            });
+        });
+    });
+    </script>
 </body>
 </html> 
